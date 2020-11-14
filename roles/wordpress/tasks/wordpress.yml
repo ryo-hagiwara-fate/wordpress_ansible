@@ -1,0 +1,49 @@
+---
+- name: installed apache
+  yum:
+    name: httpd24
+    state: present
+
+- name: started and enabled service apache
+  service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: installed mysql
+  yum:
+    name: mysql56
+    state: present
+
+- name: yum install php
+  yum: name={{ item }} 
+  become: true
+  with_items:
+    - php56
+    - php56-mcrypt
+    - php56-intl
+    - php56-mbstring
+    - php56-mysqlnd
+    - php56-opcache
+    - php56-devel
+
+
+
+- name: install wordpress
+  get_url:
+    url="https://ja.wordpress.org/wordpress-4.6-ja.zip"
+    dest=/tmp/wordpress.tar.gz
+
+- name: open wordpress
+  unarchive: src=/tmp/wordpress.tar.gz dest=/var/www/html/ copy=no
+
+- name: authorized
+  file: path=/var/www/html/wordpress/ owner=apache group=apache recurse=yes
+
+- name: restart httpd
+  service: name=httpd state=restarted
+
+
+
+
+    
